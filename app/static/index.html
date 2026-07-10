@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viet Ha</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #fbfdff;
+      --white: #ffffff;
+      --blue-wash: #edf8ff;
+      --blue-soft: #d9edf8;
+      --blue-line: #a9ccdc;
+      --pink-wash: #fff1f6;
+      --pink-soft: #f5c9d8;
+      --pink-line: #dca0b5;
+      --ink: #273545;
+      --muted: #718292;
+      --glass: rgba(255, 255, 255, 0.72);
+      --border: rgba(255, 255, 255, 0.82);
+      --line: rgba(132, 168, 189, 0.28);
+      --shadow: 0 26px 80px rgba(82, 116, 140, 0.15);
+      --soft-shadow: 0 16px 44px rgba(82, 116, 140, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      background:
+        linear-gradient(115deg, rgba(237, 248, 255, 0.92), rgba(255, 255, 255, 0.8) 44%, rgba(255, 241, 246, 0.9)),
+        var(--paper);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 4%, rgba(217, 237, 248, 0.9), transparent 31%),
+        radial-gradient(circle at 88% 12%, rgba(245, 201, 216, 0.68), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.9), transparent 52%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.25;
+      background-image:
+        linear-gradient(rgba(39, 53, 69, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(39, 53, 69, 0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent 78%);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: min(760px, calc(100% - 28px));
+      padding: 8px 10px 8px 18px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: var(--soft-shadow);
+      backdrop-filter: blur(24px);
+      transform: translateX(-50%);
+    }
+
+    .brand {
+      color: #36566d;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .control-btn,
+    .lang-btn,
+    .music-btn,
+    .close-btn,
+    .photo-button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .control-btn,
+    .lang-btn {
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 999px;
+      color: #587184;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .control-btn {
+      background: linear-gradient(135deg, rgba(217, 237, 248, 0.85), rgba(245, 201, 216, 0.76));
+      color: #263545;
+    }
+
+    .lang-btn.active {
+      color: #263545;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(132, 168, 189, 0.18);
+    }
+
+    .hero {
+      min-height: 86vh;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(310px, 0.72fr);
+      align-items: center;
+      gap: clamp(42px, 7vw, 92px);
+      padding: 118px 0 70px;
+    }
+
+    .mark {
+      margin: 0 0 24px;
+      color: #668ca4;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: #263545;
+      font-family: "Playfair Display", "Noto Serif SC", serif;
+      font-size: clamp(76px, 13vw, 154px);
+      line-height: 0.86;
+      letter-spacing: 0;
+    }
+
+    .signature {
+      display: block;
+      margin-top: 14px;
+      color: #bd7890;
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: clamp(34px, 6vw, 66px);
+      font-weight: 400;
+      line-height: 1.08;
+    }
+
+    .status-panel {
+      max-width: 620px;
+      margin-top: 34px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.86);
+      border-radius: 20px;
+      color: #607789;
+      background: rgba(255, 255, 255, 0.58);
+      box-shadow: 0 16px 46px rgba(82, 116, 140, 0.1);
+      line-height: 1.76;
+      backdrop-filter: blur(18px);
+    }
+
+    .cover {
+      position: relative;
+      min-height: 560px;
+    }
+
+    .cover-card {
+      position: absolute;
+      overflow: hidden;
+      border: 10px solid rgba(255, 255, 255, 0.86);
+      background: rgba(255, 255, 255, 0.5);
+      box-shadow: var(--shadow);
+    }
+
+    .cover-card img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .cover-card img[src] {
+      opacity: 1;
+    }
+
+    .cover-card.main {
+      inset: 38px 34px 56px 32px;
+      border-radius: 32px;
+    }
+
+    .cover-card.top {
+      right: 0;
+      top: 0;
+      width: 34%;
+      height: 25%;
+      border-radius: 24px;
+    }
+
+    .cover-card.bottom {
+      left: 0;
+      bottom: 0;
+      width: 42%;
+      height: 31%;
+      border-radius: 26px;
+    }
+
+    .gallery-wrap {
+      position: relative;
+      padding: 18px 0 104px;
+    }
+
+    .gallery-wrap::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 60px;
+      left: 50%;
+      width: 2px;
+      transform: translateX(-50%);
+      background: linear-gradient(to bottom, transparent, rgba(169, 204, 220, 0.74), rgba(245, 201, 216, 0.72), rgba(169, 204, 220, 0.72), transparent);
+    }
+
+    .gallery {
+      position: relative;
+    }
+
+    .card {
+      position: relative;
+      width: 50%;
+      padding: 0 50px 36px 0;
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+
+    .card:nth-child(even) {
+      margin-left: 50%;
+      padding: 0 0 36px 50px;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 32px;
+      right: -9px;
+      z-index: 2;
+      width: 18px;
+      height: 18px;
+      border: 5px solid rgba(255, 255, 255, 0.96);
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-soft), var(--pink-soft));
+      box-shadow: 0 8px 24px rgba(82, 116, 140, 0.18);
+    }
+
+    .card:nth-child(even)::before {
+      right: auto;
+      left: -9px;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      top: 41px;
+      right: 8px;
+      width: 42px;
+      height: 1px;
+      background: rgba(169, 204, 220, 0.64);
+    }
+
+    .card:nth-child(even)::after {
+      right: auto;
+      left: 8px;
+    }
+
+    .card.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card-inner {
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.58);
+      box-shadow: 0 18px 54px rgba(82, 116, 140, 0.12);
+      transition: box-shadow 0.24s ease, transform 0.24s ease;
+    }
+
+    .card:hover .card-inner {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 72px rgba(82, 116, 140, 0.17);
+    }
+
+    .photo-button {
+      display: block;
+      width: 100%;
+      padding: 0;
+      background: transparent;
+      cursor: zoom-in;
+    }
+
+    .photo {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 220px;
+      background: linear-gradient(135deg, rgba(217, 237, 248, 0.58), rgba(245, 201, 216, 0.5));
+    }
+
+    .sentinel {
+      height: 2px;
+    }
+
+    .music-player {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 55;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--soft-shadow);
+      backdrop-filter: blur(20px);
+    }
+
+    .music-player.ready {
+      display: flex;
+    }
+
+    .music-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      color: #263545;
+      background: linear-gradient(135deg, var(--blue-soft), var(--pink-soft));
+      box-shadow: 0 12px 30px rgba(82, 116, 140, 0.13);
+      font-size: 19px;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      background: rgba(248, 251, 255, 0.9);
+      backdrop-filter: blur(20px);
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: min(100%, 1280px);
+      max-height: 88vh;
+      object-fit: contain;
+      border-radius: 24px;
+      box-shadow: 0 34px 90px rgba(82, 116, 140, 0.24);
+    }
+
+    .close-btn {
+      position: fixed;
+      top: 20px;
+      right: 22px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: #263545;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--soft-shadow);
+      font-size: 22px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .cover {
+        min-height: 430px;
+      }
+
+      .gallery-wrap::before {
+        left: 22px;
+      }
+
+      .card,
+      .card:nth-child(even) {
+        width: 100%;
+        margin-left: 0;
+        padding: 0 0 30px 58px;
+      }
+
+      .card::before,
+      .card:nth-child(even)::before {
+        left: 13px;
+        right: auto;
+      }
+
+      .card::after,
+      .card:nth-child(even)::after {
+        left: 30px;
+        right: auto;
+        width: 30px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 24px, 520px);
+      }
+
+      .topbar {
+        top: 10px;
+        padding-left: 14px;
+      }
+
+      .brand {
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .control-btn,
+      .lang-btn {
+        padding: 0 10px;
+        font-size: 12px;
+      }
+
+      .hero {
+        padding-top: 104px;
+      }
+
+      .cover {
+        min-height: 330px;
+      }
+
+      .cover-card.main {
+        inset: 24px 14px 38px;
+      }
+
+      .cover-card.top,
+      .cover-card.bottom {
+        display: none;
+      }
+
+      .music-player {
+        right: 14px;
+        bottom: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="brand">Viet Ha</div>
+    <div class="toolbar" aria-label="Controls">
+      <button id="pickFolder" class="control-btn" type="button" data-i18n="pickFolder">本地照片</button>
+      <button class="lang-btn active" type="button" data-lang="zh">中</button>
+      <button class="lang-btn" type="button" data-lang="vi">VI</button>
+    </div>
+  </nav>
+
+  <header class="shell hero">
+    <div>
+      <p class="mark">Viet Ha</p>
+      <h1>Viet Ha<span class="signature">memory</span></h1>
+      <div id="statusPanel" class="status-panel"></div>
+    </div>
+    <div class="cover" aria-hidden="true">
+      <figure class="cover-card main"><img id="heroMain" alt=""></figure>
+      <figure class="cover-card top"><img id="heroTop" alt=""></figure>
+      <figure class="cover-card bottom"><img id="heroBottom" alt=""></figure>
+    </div>
+  </header>
+
+  <main class="shell gallery-wrap">
+    <section id="gallery" class="gallery" aria-label="Viet Ha gallery"></section>
+    <div id="sentinel" class="sentinel" aria-hidden="true"></div>
+  </main>
+
+  <div id="musicPlayer" class="music-player">
+    <button id="musicBtn" class="music-btn" type="button" title="Play" aria-label="Play">♪</button>
+  </div>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button id="closeLightbox" class="close-btn" type="button" aria-label="Close">x</button>
+    <img id="lightboxImg" src="" alt="">
+  </div>
+
+  <input id="folderInput" class="sr-only" type="file" accept="image/*" multiple webkitdirectory directory>
+  <audio id="bgMusic" loop preload="none"></audio>
+
+  <script>
+    const i18n = {
+      zh: {
+        pickFolder: "本地照片",
+        loading: "正在读取相册",
+        empty: "选择本地照片文件夹",
+        ready: "已载入 {count} 张照片",
+        localReady: "本地读取 {count} 张照片",
+        localOnly: "照片只在本机读取",
+        unsupportedFolder: "当前浏览器不支持直接选择文件夹",
+        musicError: "音乐暂时无法播放"
+      },
+      vi: {
+        pickFolder: "Ảnh cục bộ",
+        loading: "Đang đọc album",
+        empty: "Chọn thư mục ảnh cục bộ",
+        ready: "Đã tải {count} ảnh",
+        localReady: "Đã đọc {count} ảnh cục bộ",
+        localOnly: "Ảnh chỉ được đọc trên thiết bị này",
+        unsupportedFolder: "Trình duyệt chưa hỗ trợ chọn thư mục trực tiếp",
+        musicError: "Chưa thể phát nhạc"
+      }
+    };
+
+    const SUPPORTED_IMAGES = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif", ".avif"];
+    const BATCH_SIZE = 28;
+
+    let currentLang = localStorage.getItem("vietHaMemoryLanguage") || "zh";
+    let photos = [];
+    let captions = {};
+    let renderedCount = 0;
+    let isPlaying = false;
+    let audioReady = false;
+    let localObjectUrls = [];
+    let cardObserver;
+    let batchObserver;
+
+    const gallery = document.getElementById("gallery");
+    const sentinel = document.getElementById("sentinel");
+    const statusPanel = document.getElementById("statusPanel");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightboxImg");
+    const folderInput = document.getElementById("folderInput");
+    const musicPlayer = document.getElementById("musicPlayer");
+    const musicBtn = document.getElementById("musicBtn");
+    const bgMusic = document.getElementById("bgMusic");
+
+    function t(key, values = {}) {
+      let text = i18n[currentLang][key] || key;
+      Object.entries(values).forEach(([name, value]) => {
+        text = text.replace(`{${name}}`, value);
+      });
+      return text;
+    }
+
+    function setStatus(key, values = {}) {
+      statusPanel.textContent = t(key, values);
+    }
+
+    function isImageName(name) {
+      return SUPPORTED_IMAGES.some((ext) => name.toLowerCase().endsWith(ext));
+    }
+
+    function cleanCaption(value) {
+      if (!value || typeof value !== "object") return { zh: "", vi: "" };
+      return {
+        zh: String(value.zh || ""),
+        vi: String(value.vi || "")
+      };
+    }
+
+    function captionFor(name) {
+      const stem = name.replace(/\.[^.]+$/, "");
+      return cleanCaption(captions[name] || captions[stem]);
+    }
+
+    async function loadCaptions() {
+      try {
+        const response = await fetch("data/captions.json", { cache: "no-store" });
+        captions = response.ok ? await response.json() : {};
+      } catch (error) {
+        captions = {};
+      }
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem("vietHaMemoryLanguage", lang);
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "vi";
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        node.textContent = t(node.dataset.i18n);
+      });
+      document.querySelectorAll(".lang-btn").forEach((button) => {
+        button.classList.toggle("active", button.dataset.lang === lang);
+      });
+      setStatus(photos.length ? "ready" : "empty", { count: photos.length });
+    }
+
+    function rememberPhotos() {
+      const safePhotos = photos.map((photo) => ({
+        id: photo.id,
+        name: photo.name,
+        relativePath: photo.relativePath,
+        width: photo.width,
+        height: photo.height,
+        size: photo.size,
+        mtime: photo.mtime,
+        rank: photo.rank,
+        label: photo.label,
+        desc: photo.desc
+      }));
+      localStorage.setItem("vietHaMemories", JSON.stringify(safePhotos));
+    }
+
+    function releaseLocalUrls() {
+      localObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      localObjectUrls = [];
+    }
+
+    function setHero() {
+      const picks = [photos[0], photos[1] || photos[0], photos[2] || photos[0]];
+      ["heroMain", "heroTop", "heroBottom"].forEach((id, index) => {
+        const img = document.getElementById(id);
+        if (!picks[index]) {
+          img.removeAttribute("src");
+          return;
+        }
+        img.src = picks[index].src;
+        img.alt = picks[index].label[currentLang];
+      });
+    }
+
+    function createCard(photo, index) {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const width = photo.width || undefined;
+      const height = photo.height || undefined;
+      card.innerHTML = `
+        <div class="card-inner">
+          <button class="photo-button" type="button" aria-label="${photo.label[currentLang]}">
+            <img class="photo" src="${photo.src}" data-large="${photo.original}" ${width ? `width="${width}"` : ""} ${height ? `height="${height}"` : ""} loading="${index < 4 ? "eager" : "lazy"}" decoding="async" alt="">
+          </button>
+        </div>
+      `;
+
+      card.querySelector(".photo-button").addEventListener("click", () => {
+        lightboxImg.src = photo.original;
+        lightboxImg.alt = photo.label[currentLang];
+        lightbox.classList.add("open");
+        lightbox.setAttribute("aria-hidden", "false");
+      });
+
+      return card;
+    }
+
+    function observeCards(scope) {
+      if (!cardObserver) {
+        cardObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("show");
+              cardObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.08 });
+      }
+      scope.querySelectorAll(".card").forEach((card) => cardObserver.observe(card));
+    }
+
+    function renderNextBatch() {
+      if (renderedCount >= photos.length) return;
+      const fragment = document.createDocumentFragment();
+      const end = Math.min(renderedCount + BATCH_SIZE, photos.length);
+      for (let index = renderedCount; index < end; index += 1) {
+        fragment.appendChild(createCard(photos[index], index));
+      }
+      gallery.appendChild(fragment);
+      observeCards(gallery);
+      renderedCount = end;
+    }
+
+    function renderGallery() {
+      gallery.innerHTML = "";
+      renderedCount = 0;
+      setHero();
+      renderNextBatch();
+
+      if (batchObserver) batchObserver.disconnect();
+      batchObserver = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          renderNextBatch();
+        }
+      }, { rootMargin: "900px 0px" });
+      batchObserver.observe(sentinel);
+    }
+
+    function normalizePhotoList(list, local = false) {
+      const sorted = [...list].sort((a, b) => {
+        const am = a.mtime || a.lastModified || 0;
+        const bm = b.mtime || b.lastModified || 0;
+        return bm - am || String(a.name).localeCompare(String(b.name));
+      });
+
+      return sorted.map((item, index) => {
+        const name = item.name || item.file?.name || `photo-${index + 1}`;
+        const total = sorted.length;
+        const src = item.src || item.url;
+        return {
+          id: item.id || name.replace(/\.[^.]+$/, ""),
+          name,
+          relativePath: item.relativePath || name,
+          src,
+          thumb: src,
+          original: item.original || src,
+          width: item.width || 0,
+          height: item.height || 0,
+          size: item.size || item.file?.size || 0,
+          mtime: item.mtime || item.lastModified || item.file?.lastModified || 0,
+          rank: index + 1,
+          label: {
+            zh: `第 ${index + 1} / ${total} 张`,
+            vi: `Ảnh ${index + 1} / ${total}`
+          },
+          desc: cleanCaption(item.desc || captionFor(name)),
+          local
+        };
+      });
+    }
+
+    function usePhotos(nextPhotos, statusKey = "ready", local = false, nextLocalUrls = []) {
+      releaseLocalUrls();
+      localObjectUrls = local ? nextLocalUrls : [];
+      photos = normalizePhotoList(nextPhotos, local);
+      rememberPhotos();
+      renderGallery();
+      setStatus(statusKey, { count: photos.length });
+    }
+
+    async function loadServerPhotos() {
+      const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+      if (!localHosts.has(location.hostname)) return false;
+
+      try {
+        const response = await fetch("/api/photos", { cache: "no-store" });
+        if (!response.ok) return false;
+        const data = await response.json();
+        if (!data.photos || !data.photos.length) return false;
+        usePhotos(data.photos, "ready", false);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    async function loadStaticPhotos() {
+      try {
+        const response = await fetch("data/photos.json", { cache: "no-store" });
+        if (!response.ok) return false;
+        const data = await response.json();
+        if (!data.photos || !data.photos.length) return false;
+        usePhotos(data.photos, "ready", false);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function localPhotoFromFile(file, relativePath, urlStore) {
+      const url = URL.createObjectURL(file);
+      urlStore.push(url);
+      return {
+        name: file.name,
+        relativePath: relativePath || file.webkitRelativePath || file.name,
+        src: url,
+        original: url,
+        size: file.size,
+        mtime: file.lastModified,
+        desc: captionFor(file.name)
+      };
+    }
+
+    async function readDirectoryHandle(handle, prefix = "", urlStore = []) {
+      const files = [];
+      for await (const entry of handle.values()) {
+        const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+        if (entry.kind === "directory") {
+          files.push(...await readDirectoryHandle(entry, relativePath, urlStore));
+        } else if (entry.kind === "file" && isImageName(entry.name)) {
+          const file = await entry.getFile();
+          files.push(localPhotoFromFile(file, relativePath, urlStore));
+        }
+      }
+      return files;
+    }
+
+    async function pickLocalFolder() {
+      const nextUrls = [];
+      try {
+        if ("showDirectoryPicker" in window) {
+          const handle = await window.showDirectoryPicker({ mode: "read" });
+          setStatus("loading");
+          const files = await readDirectoryHandle(handle, "", nextUrls);
+          if (files.length) {
+            usePhotos(files, "localReady", true, nextUrls);
+          } else {
+            nextUrls.forEach((url) => URL.revokeObjectURL(url));
+            releaseLocalUrls();
+            photos = [];
+            gallery.innerHTML = "";
+            setHero();
+            setStatus("empty");
+          }
+          return;
+        }
+        folderInput.click();
+      } catch (error) {
+        nextUrls.forEach((url) => URL.revokeObjectURL(url));
+        if (error && error.name !== "AbortError") {
+          setStatus("unsupportedFolder");
+        }
+      }
+    }
+
+    folderInput.addEventListener("change", () => {
+      const nextUrls = [];
+      const files = [...folderInput.files]
+        .filter((file) => isImageName(file.name))
+        .map((file) => localPhotoFromFile(file, file.webkitRelativePath || file.name, nextUrls));
+      if (files.length) {
+        usePhotos(files, "localReady", true, nextUrls);
+      } else {
+        nextUrls.forEach((url) => URL.revokeObjectURL(url));
+      }
+      folderInput.value = "";
+    });
+
+    async function loadRandomAudio() {
+      try {
+        let response = await fetch("data/audio.json", { cache: "no-store" });
+        if (!response.ok && new Set(["localhost", "127.0.0.1", "::1"]).has(location.hostname)) {
+          response = await fetch("/api/audio", { cache: "no-store" });
+        }
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const tracks = data.tracks || [];
+        const selected = data.track || tracks[Math.floor(Math.random() * tracks.length)];
+        if (!selected || !selected.src) return;
+
+        bgMusic.src = selected.src;
+        bgMusic.load();
+        audioReady = true;
+        musicPlayer.classList.add("ready");
+      } catch (error) {
+        audioReady = false;
+      }
+    }
+
+    document.getElementById("pickFolder").addEventListener("click", pickLocalFolder);
+
+    document.querySelectorAll(".lang-btn").forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.lang));
+    });
+
+    document.getElementById("closeLightbox").addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeLightbox();
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove("open");
+      lightbox.setAttribute("aria-hidden", "true");
+      lightboxImg.src = "";
+    }
+
+    musicBtn.addEventListener("click", async () => {
+      try {
+        if (!audioReady) return;
+        if (isPlaying) {
+          bgMusic.pause();
+          musicBtn.textContent = "♪";
+          isPlaying = false;
+        } else {
+          await bgMusic.play();
+          musicBtn.textContent = "||";
+          isPlaying = true;
+        }
+      } catch (error) {
+        alert(t("musicError"));
+      }
+    });
+
+    async function init() {
+      setLanguage(currentLang);
+      setStatus("loading");
+      await loadCaptions();
+      const loaded = await loadServerPhotos() || await loadStaticPhotos();
+      if (!loaded) {
+        setStatus("empty");
+      }
+      await loadRandomAudio();
+    }
+
+    init();
+  </script>
+</body>
+</html>
