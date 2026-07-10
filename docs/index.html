@@ -548,6 +548,7 @@
   </div>
 
   <input id="folderInput" class="sr-only" type="file" accept="image/*" multiple webkitdirectory directory>
+  <input id="photoInput" class="sr-only" type="file" accept="image/*" multiple>
   <audio id="bgMusic" loop preload="none"></audio>
 
   <script>
@@ -593,6 +594,7 @@
     const lightbox = document.getElementById("lightbox");
     const lightboxImg = document.getElementById("lightboxImg");
     const folderInput = document.getElementById("folderInput");
+    const photoInput = document.getElementById("photoInput");
     const musicPlayer = document.getElementById("musicPlayer");
     const musicBtn = document.getElementById("musicBtn");
     const bgMusic = document.getElementById("bgMusic");
@@ -611,6 +613,10 @@
 
     function isImageName(name) {
       return SUPPORTED_IMAGES.some((ext) => name.toLowerCase().endsWith(ext));
+    }
+
+    function shouldUsePhotoPicker() {
+      return matchMedia("(pointer: coarse)").matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
     function cleanCaption(value) {
@@ -849,6 +855,10 @@
     async function pickLocalFolder() {
       const nextUrls = [];
       try {
+        if (shouldUsePhotoPicker()) {
+          photoInput.click();
+          return;
+        }
         if ("showDirectoryPicker" in window) {
           const handle = await window.showDirectoryPicker({ mode: "read" });
           setStatus("loading");
@@ -874,9 +884,9 @@
       }
     }
 
-    folderInput.addEventListener("change", () => {
+    function useSelectedFileList(fileList, input) {
       const nextUrls = [];
-      const files = [...folderInput.files]
+      const files = [...fileList]
         .filter((file) => isImageName(file.name))
         .map((file) => localPhotoFromFile(file, file.webkitRelativePath || file.name, nextUrls));
       if (files.length) {
@@ -884,7 +894,15 @@
       } else {
         nextUrls.forEach((url) => URL.revokeObjectURL(url));
       }
-      folderInput.value = "";
+      input.value = "";
+    }
+
+    folderInput.addEventListener("change", () => {
+      useSelectedFileList(folderInput.files, folderInput);
+    });
+
+    photoInput.addEventListener("change", () => {
+      useSelectedFileList(photoInput.files, photoInput);
     });
 
     async function loadRandomAudio() {
